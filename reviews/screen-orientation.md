@@ -6,6 +6,7 @@
 
 1. https://www.w3.org/TR/screen-orientation/#abstract 
 2. https://github.com/w3c/security-request/issues/101
+3. https://github.com/w3c/screen-orientation/issues/201#issuecomment-1289977250
 
 
 
