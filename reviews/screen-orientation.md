@@ -43,6 +43,12 @@
 
 ## The issues
 
+### Functional
+
+(Screen orientation lock not supported in Apple devices)[https://discussions.apple.com/thread/255551093?sortBy=rank]
+
+### Security concerns
+
 I ddidn't find any issues with the current spec. Few things I had on mind and wanted to run past the IG group.
 
 1. There is no built-in rate limit or throttle to prevent high-frequency toggling; a page that meets fullscreen + gesture may still disrupt layout (although this is bit far fetched and I am not sure if it would work in real life) OR Encourage (non-normative) debounce/heuristics for repeated lock/unlock requests within short intervals, while keeping current event-ordering rules intact
