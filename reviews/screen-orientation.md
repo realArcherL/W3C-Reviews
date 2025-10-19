@@ -4,7 +4,7 @@
 
 >  The Screen Orientation specification standardizes the types and angles for a device's screen orientation, and provides a means for locking and unlocking it. The API, defined by this specification, exposes the current type and angle of the device's screen orientation, and dispatches events when it changes. This enables web applications to programmatically adapt the user experience for multiple screen orientations, working alongside CSS. The API also allows for the screen orientation to be locked under certain preconditions. This is particularly useful for applications such as computer games, where users physically rotate the device, but the screen orientation itself should not change. 
 
-1. https://www.w3.org/TR/screen-orientation/#abstract 
+1. https://www.w3.org/TR/screen-orientation/#abstract (Updated: https://w3c.github.io/screen-orientation/#screenorientation-interface)
 2. https://github.com/w3c/security-request/issues/101
 3. https://github.com/w3c/screen-orientation/issues/201#issuecomment-1289977250
 4. Test Suite: https://wpt.live/screen-orientation/
