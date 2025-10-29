@@ -1,4 +1,4 @@
-# Screen Orientation API — Spec Summary (WD 09 Aug 2023)
+# Screen Orientation API — Spec Summary (21 October 2025)
 
 ## Abstract
 
