@@ -1,38 +1,285 @@
 # Review
 
-## Abstract
-> Actual abstract
-
 
 1. https://www.w3.org/TR/css-color-adjust-1/
 2. Security Review Request ([GitHub Issue](https://github.com/w3c/security-request/issues/104))
 3. [Self-Review Questionnaire](https://github.com/w3c/csswg-drafts/issues/12815#issuecomment-3304507485) filled by the authors
 
-## Security Review
-<!-- Follow the guidelines provided here: https://github.com/w3c/securityig/blob/main/administration/how-to-review.md -->
-
-> Spec Summary:
-Summary the proposed spec to the rest of WG.
-These summaries are generally high level, and not intended to describe specific method calls or implementation algorithms in detail.
-The goal is to provide the rest of WG with an understanding of the goals of the proposal, and enough background to understand the security issues you've identified (and to suggest additional possible areas of concern).
-It is helpful to describe the spec functions and features.
-
-Issues Table.
-1. STRIDE type
-2. Threat
-3. Example Scenario
-4. Existing Defense (what is enforced)
-5. Known Gaps / Weaknesses
-6. Reference / Section to check
-
-> Issues Presentation:
-Reviewers describe each security issue they identified during their review.
-These might be issues the reviewer is confident about, or concerns the reviewer was unsure about, and wanted to bring to IG's attention for further discussion and consideration.
-IG as a group will discuss each issue as needed.
-After discussion, the reviewer will retain, discard, or alter the security issues they've identified as the reviewer sees fit.
-
-What Issues you would want to file along with conclusion.
 
 
+---
 
+# Security & Privacy Review
+
+**Specification:** CSS Color Adjustment Module Level 1
+**Reviewer role:** Security & Privacy
+**Guides used:**
+
+* Threat Modeling Guide: [https://w3c.github.io/threat-modeling-guide/](https://w3c.github.io/threat-modeling-guide/)
+* Security & Privacy Questionnaire: [https://www.w3.org/TR/security-privacy-questionnaire/](https://www.w3.org/TR/security-privacy-questionnaire/)
+
+---
+
+## 1. System Description (Threat Modeling Guide)
+
+### What is the system?
+
+A CSS module that allows negotiation between **user preferences**, **user agent behavior**, and **author intent** for:
+
+* Color schemes (`color-scheme`)
+* Forced colors / high-contrast mode (`forced-color-adjust`)
+* Print color adjustment (`print-color-adjust`)
+* **NEW:** Forced-colors emulation for automation/testing
+
+> ```text
+> /* “This specification introduces a model and controls over automatic color adjustment by the user agent…” */
+> ```
+>
+> (Introduction)
+
+---
+
+### Who are the actors?
+
+* **Users**, including accessibility users (forced colors / high contrast)
+* **Web authors**
+* **User agents (browsers)**
+* **Automation / testing frameworks**
+* **Potential attackers** (cross-origin documents, fingerprinting scripts)
+
+---
+
+### What are the assets?
+
+* User privacy (accessibility preferences, OS/UI state)
+* Cross-origin isolation guarantees
+* UI integrity and correct affordances
+* Fingerprinting resistance
+
+---
+
+## 2. Threat Analysis (Threat Modeling Guide)
+
+### What can go wrong?
+
+#### T1: Fingerprinting via exposed user color preferences
+
+The specification exposes user color preferences through computed styles.
+
+> ```text
+> /* “…exposes the user’s color preferences to the page via getComputedStyle(), which can increase fingerprinting surface.” */
+> ```
+>
+> (Privacy Considerations)
+
+**Impact:**
+
+* Increased entropy
+* Potential inference of accessibility-related settings
+* Persistent cross-session signal (OS / UA preference)
+
+**Status:**
+
+* Acknowledged by the spec
+* Accepted tradeoff for compatibility and accessibility
+
+---
+
+#### T2: Cross-origin state inference via timing side-channels
+
+An embedded document may infer whether its color scheme matches its embedding document.
+
+> ```text
+> /* “It may be possible for an embedded document to use timing attacks to determine whether its own color-scheme matches that of its embedding iframe or not.” */
+> ```
+>
+> (Security Considerations)
+
+**Impact:**
+
+* Cross-origin information leak (1-bit: match vs mismatch)
+* Violates strict isolation expectations
+
+**Status:**
+
+* Explicitly documented
+* No mitigations suggested
+
+**Reviewer note:**
+Even single-bit leaks are relevant under browser threat models, as timing side-channels can compose with other signals.
+
+---
+
+#### T3 (NEW): Additional observable state from forced-colors emulation
+
+The specification introduces a new **emulated forced colors theme data** associated with each top-level traversable.
+
+> ```text
+> /* “For the purposes of user agent automation and application testing, this document defines the below emulations.” */
+> ```
+>
+> ```text
+> /* “Each top-level traversable has an associated emulated forced colors theme data…” */
+> ```
+>
+> (Emulation section)
+
+**Impact:**
+
+* New state
+* Forces style recalculation
+* Alters system color resolution
+* Potentially detectable via computed styles, layout, or timing
+
+**Status:**
+
+* Intended for automation/testing
+* **Exposure boundaries not explicitly stated**
+
+**Reviewer request:**
+Clarify that emulation state is **not web-exposed** and is only controllable via UA automation interfaces.
+
+---
+
+## 3. Security & Privacy Questionnaire (Answered)
+
+### 2.1 What information does this feature expose?
+
+* User color preferences (light/dark)
+* Forced-colors / high-contrast mode
+* System color mappings (via computed styles)
+
+> ```text
+> /* “…exposes the user’s color preferences to the page via getComputedStyle()…” */
+> ```
+
+---
+
+### 2.2 Does it expose the minimum amount of information necessary?
+
+No. The spec explicitly states that minimizing exposure would break compatibility and readability.
+
+> ```text
+> /* “Avoiding this comes with unfortunate drawbacks…” */
+> /* “…lying about system colors… can result in… unreadable…” */
+> ```
+
+---
+
+### 2.3 Does it expose personal data?
+
+Indirectly yes. Forced-colors mode may correlate with accessibility needs.
+
+---
+
+### 2.4 Does it expose sensitive information?
+
+Potentially yes (accessibility-related signals).
+
+---
+
+### 2.6 Does it introduce new state?
+
+**Yes (NEW).**
+
+* Emulated forced colors theme data
+* Scoped to a top-level traversable
+* Triggers style recalculation
+
+> ```text
+> /* “Each top-level traversable has an associated emulated forced colors theme data…” */
+> ```
+
+---
+
+### 2.7 Does it expose information about the underlying platform?
+
+Yes (OS / UA color preferences and forced colors behavior).
+
+---
+
+### 2.8 Does it allow an origin to modify user agent or OS state?
+
+No (except via automation tooling; not stated explicitly).
+
+---
+
+### 2.10 Does it introduce new script execution mechanisms?
+
+No.
+
+---
+
+### 2.12 Does it degrade security guarantees (e.g., isolation)?
+
+Potentially, via timing side-channels between embedding and embedded documents.
+
+---
+
+### 2.16 Are Security and Privacy Considerations provided?
+
+Yes.
+
+---
+
+### 2.21 Does it allow sites to infer assistive technology use?
+
+Indirectly yes, via forced-colors detection.
+
+---
+
+## 4. Review of Recent Spec Changes (Security-Relevant)
+
+### Change A — Forced-colors emulation (NEW)
+
+* Introduces synthetic forced-colors state
+* Bypasses OS theme
+* Intended for automation/testing
+* Not explicitly scoped as non-web-exposed
+
+> ```text
+> /* “To set emulated forced colors theme data…” */
+> /* “UAs must consider this a change that requires style recalculation.” */
+> ```
+
+**Risk:**
+Fingerprinting amplification and environment detection if observable.
+
+---
+
+### Change B — Forced colors applies to `<color>` components of all properties
+
+* Broader application increases observable differences
+* Expands fingerprinting surface
+
+> ```text
+> /* “When forced colors mode is active… the <color> components of all properties… are force-adjusted…” */
+> ```
+
+---
+
+### Change C — Emoji fallback to monochrome
+
+* Platform- and UA-dependent behavior
+* Potentially measurable rendering differences
+
+> ```text
+> /* “UAs should force any emoji… to its monochrome variant…” */
+> ```
+
+---
+
+## 5. Summary of Findings / Requests
+
+### Findings
+
+* The spec knowingly increases fingerprinting surface and documents it.
+* A timing-based cross-origin inference is acknowledged.
+* **New emulation feature introduces additional state without explicit exposure constraints.**
+
+### Requests / Suggestions
+
+1. Explicitly state that **forced-colors emulation is not exposed to web content** and is only controllable via UA automation interfaces.
+2. Consider adding **non-normative guidance** for implementers to reduce timing distinguishability in iframe canvas handling.
+3. Consider explicitly calling out any **incremental fingerprinting impact** from recent changes (broader forced-colors application, emoji fallback).
 
