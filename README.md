@@ -2,7 +2,9 @@
 
 Important Links
 1. [How to do a security review](https://github.com/w3c/securityig/blob/main/administration/how-to-review.md)
-2. How I conducted the review - @innotommy
+2. [Threat Modeling Guide](https://w3c.github.io/threat-modeling-guide/)
+3. [Privacy Questionaire](https://www.w3.org/TR/security-privacy-questionnaire/)
+4. How I conducted the review - @innotommy
     As there is no threat model, I create a threat model by myself using the Threat Modeling Manifesto:
     ● Ask four core questions:
     1. **What are we working on?** – Screen Orientation API: type/angle, events, lock/unlock.
@@ -12,7 +14,7 @@ Important Links
     3.** What are we going to do about it?** – Permissions Policy, stronger normative privacy mitigations.
     screen-orientation-issues
     4. **Did we do a good enough job?** – Check impact on developers, UAs, and users; look for residual risk.
-3. [Threat Model Manifesto](https://www.threatmodelingmanifesto.org/)
+5. [Threat Model Manifesto](https://www.threatmodelingmanifesto.org/)
 
 
 
