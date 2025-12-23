@@ -279,7 +279,19 @@ Fingerprinting amplification and environment detection if observable.
 
 ### Requests / Suggestions
 
-1. Explicitly state that **forced-colors emulation is not exposed to web content** and is only controllable via UA automation interfaces.
-2. Consider adding **non-normative guidance** for implementers to reduce timing distinguishability in iframe canvas handling.
-3. Consider explicitly calling out any **incremental fingerprinting impact** from recent changes (broader forced-colors application, emoji fallback).
+
+- Forced-colors emulation
+  - Why: new emulation state affects rendering; unclear if web content can see/control it → fingerprinting / env detection risk
+  - What: say clearly this is automation-only, not web-exposed
+  - How: add a short note like “intended only for UA automation/testing; not observable by web content”
+
+- Iframe canvas timing
+  - Why: spec already says timing attacks may be possible; no guidance given
+  - What: suggest minimizing timing differences where possible
+  - How: non-normative note encouraging reduced timing distinguishability
+
+- Fingerprinting (recent changes)
+  - Why: forced-colors now applies to all `<color>` props; emoji fallback + emulation add new observable behavior
+  - What: call out incremental fingerprinting impact vs earlier versions
+  - How: short sentence added to Privacy Considerations
 
