@@ -158,6 +158,7 @@ Clarify that emulation state is **not web-exposed** and is only controllable via
 ### 2.2 Does it expose the minimum amount of information necessary?
 
 No. The spec explicitly states that minimizing exposure would break compatibility and readability.
+Although the authors answered it as Yes here: https://github.com/w3c/csswg-drafts/issues/12815#issuecomment-3304507485
 
 > ```text
 > /* “Avoiding this comes with unfortunate drawbacks…” */
@@ -170,11 +171,12 @@ No. The spec explicitly states that minimizing exposure would break compatibilit
 
 Indirectly yes. Forced-colors mode may correlate with accessibility needs.
 
+
 ---
 
 ### 2.4 Does it expose sensitive information?
 
-Potentially yes (accessibility-related signals).
+Potentially yes (accessibility-related signals). BUT this is only if the browser could be fingerprinted
 
 ---
 
@@ -186,6 +188,14 @@ Potentially yes (accessibility-related signals).
 * Scoped to a top-level traversable
 * Triggers style recalculation
 
+Does this also count? 
+
+```text
+Out of the changes in https://drafts.csswg.org/css-color-adjust-1/#changes, the changes to emoji rendering in forced colors mode is the only new change that may fall into this category.
+```
+Source: https://github.com/w3c/csswg-drafts/issues/12815#issuecomment-3304507485
+
+
 > ```text
 > /* “Each top-level traversable has an associated emulated forced colors theme data…” */
 > ```
@@ -194,7 +204,7 @@ Potentially yes (accessibility-related signals).
 
 ### 2.7 Does it expose information about the underlying platform?
 
-Yes (OS / UA color preferences and forced colors behavior).
+Yes (OS / UA color preferences and forced colors behavior). [Indirectly/directly?]
 
 ---
 
@@ -206,13 +216,13 @@ No (except via automation tooling; not stated explicitly).
 
 ### 2.10 Does it introduce new script execution mechanisms?
 
-No.
+[No](https://github.com/w3c/csswg-drafts/issues/12815#issuecomment-3304507485).
 
 ---
 
 ### 2.12 Does it degrade security guarantees (e.g., isolation)?
 
-Potentially, via timing side-channels between embedding and embedded documents.
+Potentially, via timing side-channels between embedding and embedded documents. (but this is well documented, not sure if want to make any new suggestions)
 
 ---
 
@@ -243,14 +253,14 @@ Indirectly yes, via forced-colors detection.
 > ```
 
 **Risk:**
-Fingerprinting amplification and environment detection if observable.
+Fingerprinting amplification and environment detection if observable. (this is known)
 
 ---
 
 ### Change B — Forced colors applies to `<color>` components of all properties
 
 * Broader application increases observable differences
-* Expands fingerprinting surface
+* Expands fingerprinting surface. note: I believer this should be called out because every other component becomes exposed to this, and we should be explicity about it
 
 > ```text
 > /* “When forced colors mode is active… the <color> components of all properties… are force-adjusted…” */
@@ -261,7 +271,7 @@ Fingerprinting amplification and environment detection if observable.
 ### Change C — Emoji fallback to monochrome
 
 * Platform- and UA-dependent behavior
-* Potentially measurable rendering differences
+* Potentially measurable rendering differences (I have a hunch, but no practical exploit)
 
 > ```text
 > /* “UAs should force any emoji… to its monochrome variant…” */
