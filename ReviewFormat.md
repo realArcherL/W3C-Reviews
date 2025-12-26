@@ -8,8 +8,9 @@
 # Security Review
 Specification: "insert-RFC"
 
-  Threat Modeling Guide: https://w3c.github.io/threat-modeling-guide/
-  Security & Privacy Questionnaire: https://www.w3.org/TR/security-privacy-questionnaire/
+Threat Modeling Guide: https://w3c.github.io/threat-modeling-guide/
+
+Security & Privacy Questionnaire: https://www.w3.org/TR/security-privacy-questionnaire/
 
 
 
