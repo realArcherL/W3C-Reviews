@@ -260,7 +260,9 @@ Fingerprinting amplification and environment detection if observable. (this is k
 ### Change B — Forced colors applies to `<color>` components of all properties
 
 * Broader application increases observable differences
-* Expands fingerprinting surface. note: I believer this should be called out because every other component becomes exposed to this, and we should be explicity about it
+* Expands fingerprinting surface. note: I believe this should be called out because every other component becomes exposed to this, and we should be explicity about it
+
+HOWEVER, also want to point out that ⚠ The fingerprinting surface already existed; this change standardizes it. (the discussion and reasoning [here](https://github.com/w3c/csswg-drafts/issues/5710) and actual statement in the privacy section of the RFC: https://www.w3.org/TR/css-color-adjust-1/#privacy)
 
 > ```text
 > /* “When forced colors mode is active… the <color> components of all properties… are force-adjusted…” */
@@ -272,6 +274,11 @@ Fingerprinting amplification and environment detection if observable. (this is k
 
 * Platform- and UA-dependent behavior
 * Potentially measurable rendering differences (I have a hunch, but no practical exploit)
+
+BUT
+* Windows High Contrast Mode already renders emoji as monochrome.
+* This change aligns Chrome/Firefox behavior with Windows and Edge: https://github.com/w3c/csswg-drafts/issues/8064
+* Font fingerprinting was already possible with normal text; emoji are not special.
 
 > ```text
 > /* “UAs should force any emoji… to its monochrome variant…” */
@@ -294,6 +301,8 @@ Fingerprinting amplification and environment detection if observable. (this is k
   - Why: new emulation state affects rendering; unclear if web content can see/control it → fingerprinting / env detection risk
   - What: say clearly this is automation-only, not web-exposed
   - How: add a short note like “intended only for UA automation/testing; not observable by web content”
+ 
+  
 
 - Iframe canvas timing
   - Why: spec already says timing attacks may be possible; no guidance given
