@@ -49,6 +49,11 @@ A CSS module that allows negotiation between **user preferences**, **user agent 
 
 ### Stakeholder List
 
+> [!Tip]
+> [TM Guide](https://w3c.github.io/threat-modeling-guide/):
+> 1. Explicitly distinguish stakeholders vs observers/threat actors (5.2 focuses on “who is impacted,” then 5.3 covers threats).
+> 2. Add a 1-table stakeholder inventory: Stakeholder → Value → Harm → Spec surface involved
+
 #### **P0 — Must-model first**
 
 **End users (including users relying on accessibility modes)**  
@@ -66,7 +71,6 @@ A CSS module that allows negotiation between **user preferences**, **user agent 
 **Web authors (first-party sites)**  
 - **Value:** Predictable rendering across color schemes; ability to respect user preferences.  
 - **Potential harm:** Compatibility pressure to probe user settings; accidental accessibility regressions via `forced-color-adjust`.  
-- **W3C**
 
 
 #### **P2**
@@ -74,14 +78,12 @@ A CSS module that allows negotiation between **user preferences**, **user agent 
 **Regulators / policy bodies / auditors**  
 - **Value:** Demonstrable privacy-by-design and accessibility-by-design.  
 - **Potential harm:** Non-compliance risk if preference signals are exposed without clear boundaries or mitigations.  
-- **W3C**
 
 #### **P3**
 
 **Society / impacted groups (non-customers)**  
 - **Value:** Reduced discrimination and profiling at scale.  
 - **Potential harm:** Large-scale segmentation based on accessibility needs or appearance preferences.  
-- **W3C**
   
 ---
 
