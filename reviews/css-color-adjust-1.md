@@ -53,6 +53,9 @@ A CSS module that allows negotiation between **user preferences**, **user agent 
 > [TM Guide](https://w3c.github.io/threat-modeling-guide/):
 > 1. Explicitly distinguish stakeholders vs observers/threat actors (5.2 focuses on “who is impacted,” then 5.3 covers threats).
 > 2. Add a 1-table stakeholder inventory: Stakeholder → Value → Harm → Spec surface involved
+> > Note: we do NOT model potential attackers, as over-characterizing attackers can lead to analysis bias that is better avoided.
+> 
+> Makes sense ^^ why we don't add attackers in the TM
 
 #### **P0 — Must-model first**
 
@@ -97,6 +100,15 @@ A CSS module that allows negotiation between **user preferences**, **user agent 
 ---
 
 ## 2. Threat Analysis (Threat Modeling Guide)
+
+> Based on Section 5.3
+
+> [!TIP]
+> The section says output is “list of identified threats” but doesn’t force any structure. 
+> We SHOULD probably provide a structure do this IMO:
+> 
+> Threat → impacted asset/stakeholder → preconditions (if any) → impact (e.g., fingerprinting, accessibility harm) → existing controls/Status.
+> We already provide [Appendix 2: Threat Analysis Frameworks](https://w3c.github.io/threat-modeling-guide/#appendix-2-threat-analysis-frameworks) here but would still be nice to provide an example on what are we looking?
 
 ### What can go wrong?
 
@@ -323,6 +335,27 @@ BUT
 > ```
 
 ---
+
+> [!TIP]
+> This is what I meant by structure even though users would be the ones deciding which "Threat Analysis Frameworks" they want to pick
+
+## STRIDE Threat Analysis — CSS Color Adjustment Module Level 1
+
+| STRIDE Category | Threat | Impacted asset / stakeholder | Preconditions | Impact | Existing controls / Status |
+|----------------|--------|------------------------------|---------------|--------|----------------------------|
+| **Information Disclosure** | Exposure of user color preferences via computed styles | End users (privacy), User agents | Page can read `getComputedStyle()`; user has color preferences set | Fingerprinting, inference of accessibility or OS/UA state | Explicitly acknowledged in Privacy Considerations; accepted trade-off for compatibility/accessibility |
+| **Information Disclosure** | Cross-origin inference of color-scheme match via timing | End users (privacy), Cross-origin isolation guarantees | Embedded cross-origin iframe; measurable timing differences | 1-bit cross-origin state leak (match vs mismatch); composable with other signals | Explicitly documented in Security Considerations; no mitigations specified |
+| **Information Disclosure** | Detectability of forced-colors / high-contrast mode | End users (accessibility privacy) | Forced colors enabled; styles rendered accordingly | Inference of assistive technology usage; profiling risk | Documented; considered necessary for correct rendering |
+| **Information Disclosure** | New observable state from forced-colors emulation | End users, User agents | Emulation enabled via UA automation; rendering/state changes observable | Additional fingerprinting or environment-detection surface | Intended for automation/testing; exposure boundaries not explicitly stated |
+| **Tampering** | Author overrides of forced colors via `forced-color-adjust` | End users (accessibility users) | Author opts out of forced colors | Reduced readability; accessibility regression | Spec allows override; relies on author responsibility |
+| **Denial of Service** | Style recalculation triggered by emulated forced-colors changes | User agents | Emulation state changes; large documents | Performance impact; potential rendering jank | UA-managed; scoped to top-level traversable |
+| **Repudiation** | Lack of attribution for preference-derived signals | Regulators / auditors | Preference signals exposed without explicit consent surface | Difficulty demonstrating privacy-by-design | Not addressed explicitly |
+| **Elevation of Privilege** | N/A | N/A | N/A | No privilege escalation introduced | Not applicable |
+| **Spoofing** | N/A | N/A | N/A | No identity spoofing introduced | Not applicable |
+
+
+---
+
 
 ## 5. Summary of Findings / Requests
 
