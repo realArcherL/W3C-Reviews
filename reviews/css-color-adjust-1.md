@@ -47,6 +47,42 @@ A CSS module that allows negotiation between **user preferences**, **user agent 
 * **Automation / testing frameworks**
 * **Potential attackers** (cross-origin documents, fingerprinting scripts)
 
+### Stakeholder List
+
+#### **P0 — Must-model first**
+
+**End users (including users relying on accessibility modes)**  
+- **Value:** Usable and legible UI; privacy of user preferences (contrast, forced-colors, dark mode).  
+- **Potential harm:** Disclosure of preferences enabling fingerprinting or profiling; loss of accessibility if forced-colors are overridden.  
+
+
+**User agents (browser vendors / implementers)**  
+- **Value:** Consistent behavior across implementations; ability to mitigate cross-site observation.  
+- **Potential harm:** Underspecified behavior leading to inconsistent exposure surfaces that can be exploited for fingerprinting.  
+
+
+#### **P1**
+
+**Web authors (first-party sites)**  
+- **Value:** Predictable rendering across color schemes; ability to respect user preferences.  
+- **Potential harm:** Compatibility pressure to probe user settings; accidental accessibility regressions via `forced-color-adjust`.  
+- **W3C**
+
+
+#### **P2**
+
+**Regulators / policy bodies / auditors**  
+- **Value:** Demonstrable privacy-by-design and accessibility-by-design.  
+- **Potential harm:** Non-compliance risk if preference signals are exposed without clear boundaries or mitigations.  
+- **W3C**
+
+#### **P3**
+
+**Society / impacted groups (non-customers)**  
+- **Value:** Reduced discrimination and profiling at scale.  
+- **Potential harm:** Large-scale segmentation based on accessibility needs or appearance preferences.  
+- **W3C**
+  
 ---
 
 ### What are the assets?
