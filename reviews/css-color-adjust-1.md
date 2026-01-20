@@ -341,17 +341,17 @@ BUT
 
 ## STRIDE Threat Analysis — CSS Color Adjustment Module Level 1
 
-| STRIDE Category | Threat | Impacted asset / stakeholder | Preconditions | Impact | Existing controls / Status |
-|----------------|--------|------------------------------|---------------|--------|----------------------------|
-| **Information Disclosure** | Exposure of user color preferences via computed styles | End users (privacy), User agents | Page can read `getComputedStyle()`; user has color preferences set | Fingerprinting, inference of accessibility or OS/UA state | Explicitly acknowledged in Privacy Considerations; accepted trade-off for compatibility/accessibility |
-| **Information Disclosure** | Cross-origin inference of color-scheme match via timing | End users (privacy), Cross-origin isolation guarantees | Embedded cross-origin iframe; measurable timing differences | 1-bit cross-origin state leak (match vs mismatch); composable with other signals | Explicitly documented in Security Considerations; no mitigations specified |
-| **Information Disclosure** | Detectability of forced-colors / high-contrast mode | End users (accessibility privacy) | Forced colors enabled; styles rendered accordingly | Inference of assistive technology usage; profiling risk | Documented; considered necessary for correct rendering |
-| **Information Disclosure** | New observable state from forced-colors emulation | End users, User agents | Emulation enabled via UA automation; rendering/state changes observable | Additional fingerprinting or environment-detection surface | Intended for automation/testing; exposure boundaries not explicitly stated |
-| **Tampering** | Author overrides of forced colors via `forced-color-adjust` | End users (accessibility users) | Author opts out of forced colors | Reduced readability; accessibility regression | Spec allows override; relies on author responsibility |
-| **Denial of Service** | Style recalculation triggered by emulated forced-colors changes | User agents | Emulation state changes; large documents | Performance impact; potential rendering jank | UA-managed; scoped to top-level traversable |
-| **Repudiation** | Lack of attribution for preference-derived signals | Regulators / auditors | Preference signals exposed without explicit consent surface | Difficulty demonstrating privacy-by-design | Not addressed explicitly |
-| **Elevation of Privilege** | N/A | N/A | N/A | No privilege escalation introduced | Not applicable |
-| **Spoofing** | N/A | N/A | N/A | No identity spoofing introduced | Not applicable |
+| S.No | STRIDE Category | Threat | Impacted asset / stakeholder | Preconditions | Impact | Existing controls / Status |
+|-----|----------------|--------|------------------------------|---------------|--------|----------------------------|
+| 1. | **Information Disclosure** | Exposure of user color preferences via computed styles | End users (privacy), User agents | Page can read `getComputedStyle()`; user has color preferences set | Fingerprinting, inference of accessibility or OS/UA state | Explicitly acknowledged in Privacy Considerations; accepted trade-off for compatibility/accessibility |
+| 2. | **Information Disclosure** | Cross-origin inference of color-scheme match via timing | End users (privacy), Cross-origin isolation guarantees | Embedded cross-origin iframe; measurable timing differences | 1-bit cross-origin state leak (match vs mismatch); composable with other signals | Explicitly documented in Security Considerations; no mitigations specified |
+| 3. | **Information Disclosure** | Detectability of forced-colors / high-contrast mode | End users (accessibility privacy) | Forced colors enabled; styles rendered accordingly | Inference of assistive technology usage; profiling risk | Documented; considered necessary for correct rendering |
+| 4. | **Information Disclosure** | New observable state from forced-colors emulation | End users, User agents | Emulation enabled via UA automation; rendering/state changes observable | Additional fingerprinting or environment-detection surface | Intended for automation/testing; exposure boundaries not explicitly stated |
+| 5. | **Tampering** | Author overrides of forced colors via `forced-color-adjust` | End users (accessibility users) | Author opts out of forced colors | Reduced readability; accessibility regression | Spec allows override; relies on author responsibility |
+| 6.  |**Denial of Service** | Style recalculation triggered by emulated forced-colors changes | User agents | Emulation state changes; large documents | Performance impact; potential rendering jank | UA-managed; scoped to top-level traversable |
+| 7. | **Repudiation** | Lack of attribution for preference-derived signals | Regulators / auditors | Preference signals exposed without explicit consent surface | Difficulty demonstrating privacy-by-design | Not addressed explicitly |
+| 8. | **Elevation of Privilege** | N/A | N/A | N/A | No privilege escalation introduced | Not applicable |
+| 9. | **Spoofing** | N/A | N/A | N/A | No identity spoofing introduced | Not applicable |
 
 
 ---
@@ -372,8 +372,6 @@ BUT
   - Why: new emulation state affects rendering; unclear if web content can see/control it → fingerprinting / env detection risk
   - What: say clearly this is automation-only, not web-exposed
   - How: add a short note like “intended only for UA automation/testing; not observable by web content”
- 
-  
 
 - Iframe canvas timing
   - Why: spec already says timing attacks may be possible; no guidance given
@@ -384,4 +382,8 @@ BUT
   - Why: forced-colors now applies to all `<color>` props; emoji fallback + emulation add new observable behavior
   - What: call out incremental fingerprinting impact vs earlier versions
   - How: short sentence added to Privacy Considerations
+ 
+
+Other Considerations:
+The specification does not address how **browser extensions**, **assistive technologies** (such apple assist etc), or managed environment policies (mostly through corporate security teams) may modify or override color adjustment behavior. These actors can introduce observable, origin-independent visual changes, creating fingerprinting vectors, UI integrity risks, and ambiguity around the source of color adjustments. The spec should clarify precedence, observability expectations, and threat considerations for non-author interventions.
 
