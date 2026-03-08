@@ -170,7 +170,7 @@ graph LR
 
 ## Findings
 
-#### Issue 1: Private Browsing Mode Detection Vector
+### Issue 1: Private Browsing Mode Detection Vector
 1. What/where exactly the spec says this:
    
 The spec's Section 4 (Security and Privacy Considerations) claims: 
@@ -200,5 +200,38 @@ Remove the current claim
 
  because without the normative requirement above, it's an unsubstantiated assertion.
 
+
+### Issue 2: Spec Endorses Circumvention Pattern With No Normative Defense
+
+1. What/where exactly the spec says this:
+   
+The Introduction (Section 1) says: 
+> "if a user agent only blocks audible autoplay, then web developers can replace audible media with inaudible media to keep media playing."
+
+The code examples in Section 3 demonstrate this pattern explicitly — detecting "allowed-muted" and setting `video.muted = true` before calling `play()`.
+
+The only defensive guidance is in a non-normative Note in Section 2.2.2: 
+> "if authors make an inaudible media element audible right after it starts playing, then it is recommended for a user agent to pause that media element immediately because it's no longer inaudible."
+
+Per the Conformance section: 
+> "Informative notes begin with the word 'Note' and are set apart from the normative text."
+
+This might not be as strongly highlighted as we wanted it to be.
+
+2. What correction we're suggesting and why:
+   
+The spec teaches developers the detect-and-circumvent pattern as its primary use case, but the only countermeasure against the hostile version of that pattern (start muted, then programmatically unmute) is a non-normative suggestion. An implementation that ignores the recommendation is fully conformant.
+This matters because — as the PING review noted — 
+> "disclosing to the page that a video is playing muted might cause the page to do something that could be hostile to the user."
+
+ The spec should ensure that when it endorses a pattern, the guardrails around abuse of that pattern are normative, not optional. The fix needs nuance though: if a user clicks an unmute button, pausing would be terrible UX. The pause should only apply to programmatic unmuting without user activation.
+ 
+5. How it can be fixed — exact wording:
+Move the guidance from the non-normative Note into normative text in Section 2.2.2, with activation-awareness:
+
+> "If a media element begins playback as an inaudible media element under the allowed-muted policy and subsequently becomes audible without transient user activation, the user agent SHOULD pause the media element."
+
+Using SHOULD (not MUST) here is deliberate — it gives UAs some room for implementation-specific heuristics while still carrying normative weight, unlike the current non-normative Note which carries none.
+The key addition is "without transient user activation" — this preserves the legitimate case where a user explicitly clicks an unmute button (which provides transient activation) while blocking the hostile case where JavaScript programmatically unmutes immediately after policy-gated playback.
 
 
