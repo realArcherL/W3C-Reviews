@@ -1,6 +1,7 @@
 # Review
 
 You can find the presentation for this review [here](https://realarcherl.github.io/W3C-presentations/autoplay_policy_detection.html)
+because this caught my attention: https://github.com/w3c/breakouts-day-2026/issues/15
 
 1. Link to the Spec: https://www.w3.org/TR/autoplay-detection/
 2. Security Review Request: https://github.com/w3c/security-request/issues/48
