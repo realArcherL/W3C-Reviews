@@ -170,6 +170,15 @@ graph LR
 | **DT2** | Web Audio API's `AudioContextState` | The spec depends on AudioContext's `suspended` state for the `"disallowed"` semantics. Changes to how Web Audio handles suspended contexts could affect this API's behavior. | Web Audio API | **Transfer**: Web Audio spec owns `AudioContextState`. |
 | **DT3** | Permissions Policy integration gap | The spec does not integrate with Permissions Policy (as discussed in Issue #27). This means there's no standard way for a parent frame to restrict or delegate the autoplay query capability to iframes. | Permissions Policy | **Accept (for now)**: [Issue #27](https://github.com/w3c/autoplay/issues/27) documents why the mapping isn't straightforward. May need revisiting. |
 
+## POST discussion with #SING https://github.com/w3c/securityig/issues/43
+###  How This Maps to the Threat Model
+
+| W3C Workstream | Document | What It Says | How the Spec Conflicts |
+|---|---|---|---|
+| **Accessibility** | [ACT Rule aaa1bf — Applicability](https://www.w3.org/WAI/standards-guidelines/act/rules/aaa1bf/proposed/#applicability) / [WCAG 1.4.2](https://www.w3.org/WAI/WCAG22/Understanding/audio-control.html) | Auto-playing audio >3s without a stop mechanism is a failure ([F23](https://www.w3.org/WAI/WCAG22/Techniques/failures/F23)). Sounds should play only on user request ([G171](https://www.w3.org/WAI/WCAG22/Techniques/general/G171)). | Spec teaches detect-and-circumvent pattern. Non-normative defense allows unmuting without user activation → direct path to F23 failure. |
+| **Sustainability** | [WSG 2.11 STAR Technique UX11-3](https://github.com/w3c/sustainableweb-wsg/blob/main/star.json) / [WSG 2.12](https://www.w3.org/TR/web-sustainability-guidelines/#ensure-animation-is-proportionate-and-easy-to-control) | Users must control when media begins transmitting. Autoplay should be flagged and removed. Static facades recommended. | Spec's Introduction explicitly encourages swapping to muted autoplay to "keep media playing" — bypassing user control. |
+| **Attention / Cognition** | [ACT Rule aaa1bf — Expectation](https://www.w3.org/WAI/standards-guidelines/act/rules/aaa1bf/proposed/#expectation) / [G60](https://www.w3.org/WAI/WCAG22/Techniques/general/G60) | Animation should be essential and user-controlled. A stop/opt-out mechanism must be provided. | `"allowed-muted"` enables auto-playing video (visual motion) with no mandated stop mechanism. |
+
 
 ## Findings
 
@@ -206,35 +215,57 @@ Remove the current claim
 
 ### Issue 2: Spec Endorses Circumvention Pattern With No Normative Defense
 
-1. What/where exactly the spec says this:
-   
-The Introduction (Section 1) says: 
+#### 1. What/where exactly the spec says this
+
+The Introduction (Section 1):
 > "if a user agent only blocks audible autoplay, then web developers can replace audible media with inaudible media to keep media playing."
 
-The code examples in Section 3 demonstrate this pattern explicitly — detecting "allowed-muted" and setting `video.muted = true` before calling `play()`.
+Section 3 examples demonstrate this — detecting `"allowed-muted"` and setting `video.muted = true` before calling `play()`.
 
-The only defensive guidance is in a non-normative Note in Section 2.2.2: 
+The only defense is a non-normative Note in Section 2.2.2:
 > "if authors make an inaudible media element audible right after it starts playing, then it is recommended for a user agent to pause that media element immediately because it's no longer inaudible."
 
-Per the Conformance section: 
+Per the Conformance section:
 > "Informative notes begin with the word 'Note' and are set apart from the normative text."
 
-This might not be as strongly highlighted as we wanted it to be.
+A browser that ignores this is fully conformant.
 
-2. What correction we're suggesting and why:
-   
-The spec teaches developers the detect-and-circumvent pattern as its primary use case, but the only countermeasure against the hostile version of that pattern (start muted, then programmatically unmute) is a non-normative suggestion. An implementation that ignores the recommendation is fully conformant.
-This matters because — as the PING review noted — 
+#### 2. What correction we're suggesting and why
+
+The spec teaches the detect-and-circumvent pattern but makes the defense non-normative. As the [PING review noted](https://w3c.github.io/ping/summaries/PING-minutes-20230216.html#3-privacy-review-of-autoplay-policy-detection):
 > "disclosing to the page that a video is playing muted might cause the page to do something that could be hostile to the user."
 
- The spec should ensure that when it endorses a pattern, the guardrails around abuse of that pattern are normative, not optional. The fix needs nuance though: if a user clicks an unmute button, pausing would be terrible UX. The pause should only apply to programmatic unmuting without user activation.
- 
-5. How it can be fixed — exact wording:
-Move the guidance from the non-normative Note into normative text in Section 2.2.2, with activation-awareness:
+The fix needs activation-awareness — pausing on *programmatic* unmute, not when a user clicks unmute.
 
-> "If a media element begins playback as an inaudible media element under the allowed-muted policy and subsequently becomes audible without transient user activation, the user agent SHOULD pause the media element."
+#### 3. Cross-Workstream Impact
 
-Using SHOULD (not MUST) here is deliberate — it gives UAs some room for implementation-specific heuristics while still carrying normative weight, unlike the current non-normative Note which carries none.
-The key addition is "without transient user activation" — this preserves the legitimate case where a user explicitly clicks an unmute button (which provides transient activation) while blocking the hostile case where JavaScript programmatically unmutes immediately after policy-gated playback.
+This gap enables harms identified by three W3C workstreams:
 
+**Accessibility — WCAG 1.4.2 / ACT Rule aaa1bf**
+
+[ACT Rule aaa1bf](https://www.w3.org/WAI/standards-guidelines/act/rules/aaa1bf/proposed/) fails any auto-playing element with audio exceeding 3 seconds ([Expectation](https://www.w3.org/WAI/standards-guidelines/act/rules/aaa1bf/proposed/#expectation)). A muted video is [inapplicable](https://www.w3.org/WAI/standards-guidelines/act/rules/aaa1bf/proposed/#inapplicable-example-1) — the moment it's unmuted without user action, it becomes an [F23 failure](https://www.w3.org/WAI/WCAG22/Techniques/failures/F23). [G171](https://www.w3.org/WAI/WCAG22/Techniques/general/G171) is explicit: sounds should play only on user request. The spec creates the pipeline for this transition with no normative guardrail.
+
+**Sustainability — WSG 2.11 / 2.12**
+
+[WSG STAR technique UX11-3](https://w3c.github.io/sustainableweb-wsg/star.html#UX11-3) requires users remain in control of when media begins transmitting, and its testability criteria include: *"Check for audio and video HTML elements and remove any autoplay true events."* The spec's encouragement to "keep media playing" via muted autoplay directly conflicts. A muted video still downloads, decodes, and drains battery. [WSG 2.12](https://www.w3.org/TR/web-sustainability-guidelines/#ensure-animation-is-proportionate-and-easy-to-control) adds that a stop/opt-out mechanism must be provided before animation begins — `"allowed-muted"` provides none.
+
+**Attention / Cognition — WCAG 2.2.2 Pause, Stop, Hide**
+
+[WCAG 2.2.2](https://www.w3.org/WAI/WCAG22/Understanding/pause-stop-hide.html) requires
+that any moving content which (1) starts automatically, (2) lasts more than five seconds,
+and (3) is presented in parallel with other content must have a mechanism to pause, stop,
+or hide it. The Understanding document
+[explicitly separates](https://www.w3.org/WAI/WCAG22/Understanding/pause-stop-hide.html#intent)
+this from audio: "This Success Criterion is specifically concerned with moving, blinking,
+scrolling, and auto-updating **visual** content." A muted auto-playing video meets all
+three conditions. The `"allowed-muted"` path enables this scenario with no mandated
+pause/stop mechanism — a direct path to a 2.2.2 failure at Level A.
+
+#### 4. How it can be fixed
+
+Move the guidance from the non-normative Note into normative text in Section 2.2.2:
+
+> "If a media element begins playback as an inaudible media element under the `allowed-muted` policy and subsequently becomes audible without transient user activation, the user agent SHOULD pause the media element."
+
+SHOULD (not MUST) is deliberate — normative weight while allowing UA heuristics. The key addition is *"without transient user activation"* — preserving the legitimate case (user clicks unmute) while blocking the hostile case (JS unmutes programmatically after policy-gated playback).
 
