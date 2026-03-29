@@ -249,18 +249,6 @@ This gap enables harms identified by three W3C workstreams:
 
 [WSG STAR technique UX11-3](https://w3c.github.io/sustainableweb-wsg/star.html#UX11-3) requires users remain in control of when media begins transmitting, and its testability criteria include: *"Check for audio and video HTML elements and remove any autoplay true events."* The spec's encouragement to "keep media playing" via muted autoplay directly conflicts. A muted video still downloads, decodes, and drains battery. [WSG 2.12](https://www.w3.org/TR/web-sustainability-guidelines/#ensure-animation-is-proportionate-and-easy-to-control) adds that a stop/opt-out mechanism must be provided before animation begins — `"allowed-muted"` provides none.
 
-**Attention / Cognition — WCAG 2.2.2 Pause, Stop, Hide**
-
-[WCAG 2.2.2](https://www.w3.org/WAI/WCAG22/Understanding/pause-stop-hide.html) requires
-that any moving content which (1) starts automatically, (2) lasts more than five seconds,
-and (3) is presented in parallel with other content must have a mechanism to pause, stop,
-or hide it. The Understanding document
-[explicitly separates](https://www.w3.org/WAI/WCAG22/Understanding/pause-stop-hide.html#intent)
-this from audio: "This Success Criterion is specifically concerned with moving, blinking,
-scrolling, and auto-updating **visual** content." A muted auto-playing video meets all
-three conditions. The `"allowed-muted"` path enables this scenario with no mandated
-pause/stop mechanism — a direct path to a 2.2.2 failure at Level A.
-
 #### 4. How it can be fixed
 
 Move the guidance from the non-normative Note into normative text in Section 2.2.2:
@@ -269,3 +257,71 @@ Move the guidance from the non-normative Note into normative text in Section 2.2
 
 SHOULD (not MUST) is deliberate — normative weight while allowing UA heuristics. The key addition is *"without transient user activation"* — preserving the legitimate case (user clicks unmute) while blocking the hostile case (JS unmutes programmatically after policy-gated playback).
 
+### Issue 3: Spec Recommends Pattern That Triggers WCAG Obligations Without Disclosure
+
+#### 1. What/where exactly the spec says this
+
+The Introduction (Section 1):
+> "if a user agent only blocks audible autoplay, then web developers can
+> replace audible media with inaudible media to keep media playing, instead
+> of showing a blocked media which looks like a still image to users."
+
+Section 3 Example 1 demonstrates:
+```js
+if (navigator.getAutoplayPolicy("mediaelement") === "allowed-muted") {
+  // Create a new media element, and play it in muted.
+}
+```
+
+Section 4 (Security and Privacy Considerations) contains no mention of
+accessibility implications. There is no Accessibility Considerations section.
+
+#### 2. What correction we're suggesting and why
+
+[WCAG 2.2.2 Pause, Stop, Hide](https://www.w3.org/WAI/WCAG22/Understanding/pause-stop-hide.html)
+(Level A) requires that any moving content which (1) starts automatically,
+(2) lasts more than five seconds, and (3) is presented in parallel with other
+content must have a
+[mechanism to pause, stop, or hide it](https://www.w3.org/WAI/WCAG22/Understanding/pause-stop-hide.html#intent).
+
+The Understanding document
+[states](https://www.w3.org/WAI/WCAG22/Understanding/pause-stop-hide.html#intent):
+> "Some people with cognitive disabilities and attention deficits are
+> distracted by continuous movement."
+
+And [clarifies](https://www.w3.org/WAI/WCAG22/Understanding/pause-stop-hide.html#intent)
+that 2.2.2 covers visual motion specifically:
+> "This Success Criterion is specifically concerned with moving, blinking,
+> scrolling, and auto-updating visual content."
+
+A muted auto-playing video meets all three conditions. The spec recommends
+this exact pattern as the correct developer response to `"allowed-muted"` —
+and frames the alternative (a still image) as an inferior outcome. It never
+discloses that this pattern triggers a Level A WCAG obligation.
+
+Additionally, [WSG 2.12](https://www.w3.org/TR/web-sustainability-guidelines/#ensure-animation-is-proportionate-and-easy-to-control)
+requires a stop/opt-out mechanism before animation begins, and
+[WSG STAR UX11-3](https://w3c.github.io/sustainableweb-wsg/star.html#UX11-3)
+requires users remain in control of when media begins transmitting.
+
+The spec currently has no Accessibility Considerations section. The
+[W3C Security & Privacy Questionnaire §2.16](https://www.w3.org/TR/security-privacy-questionnaire/#considerations)
+states that specifications should have dedicated considerations sections.
+The same principle applies to accessibility.
+
+#### 3. How it can be fixed
+
+Add to Section 4, or create a new Accessibility Considerations section:
+
+> "When using the `allowed-muted` result to autoplay muted video content,
+> authors should be aware that auto-playing video presented alongside other
+> content may need to meet the requirements of WCAG Success Criterion 2.2.2
+> Pause, Stop, Hide, which requires a mechanism for users to pause, stop,
+> or hide moving content that starts automatically and lasts more than five
+> seconds. Authors are encouraged to provide visible media controls and
+> respect the `prefers-reduced-motion` media query."
+
+This is non-normative guidance to content authors — appropriate because
+WCAG 2.2.2 is an author obligation, not a UA obligation. The spec can't
+mandate pause buttons, but it should disclose that the pattern it recommends
+comes with accessibility requirements it currently doesn't mention.
