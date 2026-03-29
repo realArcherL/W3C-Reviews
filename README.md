@@ -15,6 +15,9 @@
     screen-orientation-issues
     4. **Did we do a good enough job?** – Check impact on developers, UAs, and users; look for residual risk.
 5. [Threat Model Manifesto](https://www.threatmodelingmanifesto.org/)
+6. UX Designs issues can also be problmeatic
+2. [Web sustainability guide](https://www.w3.org/TR/web-sustainability-guidelines/#user-controlled-media) 
+3. [Attention is also going to be an issue](https://www.w3.org/WAI/standards-guidelines/act/rules/aaa1bf/proposed/)
 
 
 
