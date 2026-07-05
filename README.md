@@ -27,6 +27,7 @@
 2. [CSS Color Adjustment Module Level 1](https://www.w3.org/TR/css-color-adjust-1/) GitHub Issue: [css-color-adjust-1 2025-09-17 > 2025-10-31 #104
 ](https://github.com/w3c/security-request/issues/104)
 3. [Autoplay-Policy-detection](https://www.w3.org/TR/autoplay-detection/): GitHub Issue: w3c/security-request/issues/48
+4. [CSS View Transitions Module Level 2](https://drafts.csswg.org/css-view-transitions-2/) Issue: https://github.com/w3c/security-request/issues/66
 
 
 ## Presentation
